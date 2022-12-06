@@ -42,7 +42,6 @@ const ItemCss = css`
 
 interface ITaskItem {
     id: string,
-    position: number,
     name: string,
     done: boolean,
     isEdit: boolean,
