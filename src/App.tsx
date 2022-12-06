@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import './App.css';
-import { types, getSnapshot } from "mobx-state-tree";
+import { types, onSnapshot, flow, applySnapshot, detach } from "mobx-state-tree";
 import { observer } from "mobx-react-lite";
 import TodoList from './Components/TaskList';
+import { autorun } from 'mobx';
+
 
 const Task = types
   .model({
@@ -12,7 +14,7 @@ const Task = types
     isEdit: types.optional(types.boolean, false),
   })
   .actions(self => {
-    function setName(newName:string) {
+    function setName(newName: string) {
       self.name = newName;
     }
 
@@ -20,13 +22,13 @@ const Task = types
       self.done = !self.done;
     }
 
-    function enableEdit(){
+    function enableEdit() {
       self.isEdit = true;
     }
-    function disableEdit(){
+    function disableEdit() {
       self.isEdit = false;
     }
-    
+
 
     return { setName, toggle, enableEdit, disableEdit };
   });
@@ -40,47 +42,59 @@ const RootStore = types
       self.tasks.push(Task.create({ id, name }));
     }
 
-    function deleteTask(id: string){
-      let indexTask = self.tasks.findIndex(e=>e.id==id);
-      self.tasks.splice(indexTask,1);
+    const deleteTask = (id: string) => {
+      let indexTask = self.tasks.findIndex(e => e.id == id);
+      detach(self.tasks[indexTask])
     }
 
-    function moveUpTask(id: string){
-        let indexTask = self.tasks.findIndex(e=>e.id==id);
-        if(indexTask == 0){
-          return;
-        }
-        const taskToMove = self.tasks.splice(indexTask,1)[0];
-        self.tasks.splice(indexTask-1,0, taskToMove);
-    }
-
-    function moveDownTask(id: string){
-      let indexTask = self.tasks.findIndex(e=>e.id==id);
-      if(indexTask >= self.tasks.length - 1){
+    const moveUpTask = (id: string) => {
+      let indexTask = self.tasks.findIndex(e => e.id == id);
+      if (indexTask == 0) {
         return;
       }
-      const taskToMove = self.tasks.splice(indexTask,1)[0];
-      self.tasks.splice(indexTask+1,0, taskToMove);
-  }
+      const taskToMove = detach(self.tasks[indexTask]);
+      self.tasks.splice(indexTask - 1, 0, taskToMove);
+      return;
+    };
+
+    const moveDownTask = (id: string) => {
+      let indexTask = self.tasks.findIndex(e => e.id == id);
+      if (indexTask >= self.tasks.length - 1) {
+        return;
+      }
+      const taskToMove = detach(self.tasks[indexTask]);
+      self.tasks.splice(indexTask + 1, 0, taskToMove);
+    }
 
     return { addTask, deleteTask, moveUpTask, moveDownTask };
   });
 
 const store = RootStore.create({
-  tasks: [
-    {
-      id: crypto.randomUUID(),
-      name: "Eat a cake",
-      done: true
-    }
-  ]
+  tasks: []
 });
+
+autorun(()=>{
+  const snapshot = localStorage.getItem("persistData")
+  if(snapshot){
+    
+    try{
+      applySnapshot(store,JSON.parse(snapshot))
+    }catch(ex){
+      
+    }
+  }
+})
+
+
+onSnapshot(store, (snapshot) => {
+  localStorage.setItem("persistData", JSON.stringify(snapshot));
+})
 
 const App = observer(() => {
 
   const [taskText, setTaskText] = useState("");
 
-  function saveTask(){
+  function saveTask() {
     store.addTask(crypto.randomUUID(), taskText);
     setTaskText("");
   }
@@ -88,7 +102,7 @@ const App = observer(() => {
   return (
     <div>
       <h1>Lista de Tareas</h1>
-      <input value={taskText} onChange={evt=>setTaskText(evt.target.value)} />
+      <input value={taskText} onChange={evt => setTaskText(evt.target.value)} />
       <button onClick={e => saveTask()}>
         Add Task
       </button>
@@ -98,4 +112,4 @@ const App = observer(() => {
 })
 
 
-export default ()=><App  />;
+export default () => <App />;
