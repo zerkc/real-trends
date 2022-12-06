@@ -15,7 +15,7 @@ export default observer((props: any) => {
     return (
         <div className={TaskListCss}>
             {values(props.store.tasks).map((task: any) => (
-                <TaskItem key={task.key} item={task} />
+                <TaskItem key={task.key} item={task} moveDownTask={props.store.moveDownTask} moveUpTask={props.store.moveUpTask} deleteTask={props.store.deleteTask} />
             ))}
         </div>
     )

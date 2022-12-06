@@ -23,30 +23,57 @@ const Task = types
     function enableEdit(){
       self.isEdit = true;
     }
+    function disableEdit(){
+      self.isEdit = false;
+    }
+    
 
-    return { setName, toggle, enableEdit };
+    return { setName, toggle, enableEdit, disableEdit };
   });
 
 const RootStore = types
   .model({
-    tasks: types.optional(types.map(Task), {})
+    tasks: types.optional(types.array(Task), [])
   })
   .actions(self => {
     function addTask(id: string, name: string) {
-      self.tasks.set(id, Task.create({ id, name }));
+      self.tasks.push(Task.create({ id, name }));
     }
 
-    return { addTask };
+    function deleteTask(id: string){
+      let indexTask = self.tasks.findIndex(e=>e.id==id);
+      self.tasks.splice(indexTask,1);
+    }
+
+    function moveUpTask(id: string){
+        let indexTask = self.tasks.findIndex(e=>e.id==id);
+        if(indexTask == 0){
+          return;
+        }
+        const taskToMove = self.tasks.splice(indexTask,1)[0];
+        self.tasks.splice(indexTask-1,0, taskToMove);
+    }
+
+    function moveDownTask(id: string){
+      let indexTask = self.tasks.findIndex(e=>e.id==id);
+      if(indexTask >= self.tasks.length - 1){
+        return;
+      }
+      const taskToMove = self.tasks.splice(indexTask,1)[0];
+      self.tasks.splice(indexTask+1,0, taskToMove);
+  }
+
+    return { addTask, deleteTask, moveUpTask, moveDownTask };
   });
 
 const store = RootStore.create({
-  tasks: {
-    "1": {
+  tasks: [
+    {
       id: crypto.randomUUID(),
       name: "Eat a cake",
       done: true
     }
-  }
+  ]
 });
 
 const App = observer(() => {
