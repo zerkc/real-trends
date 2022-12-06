@@ -73,7 +73,7 @@ const RootStore = types
         return { addTask, deleteTask, moveUpTask, moveDownTask };
     });
 
-export const store = RootStore.create({
+export const StoreTasks = RootStore.create({
     tasks: []
 });
 
@@ -82,7 +82,7 @@ autorun(() => {
     if (snapshot) {
 
         try {
-            applySnapshot(store, JSON.parse(snapshot))
+            applySnapshot(StoreTasks, JSON.parse(snapshot))
         } catch (ex) {
 
         }
@@ -90,6 +90,6 @@ autorun(() => {
 })
 
 
-onSnapshot(store, (snapshot) => {
+onSnapshot(StoreTasks, (snapshot) => {
     localStorage.setItem("persistData", JSON.stringify(snapshot));
 })

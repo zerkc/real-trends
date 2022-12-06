@@ -74,8 +74,7 @@ export default observer((props: ITaskItemProps) => {
 
     return (
         <div
-            className={`${ItemCss} ${props.item.isEdit && "editting"}`}
-            key={props.item.id}>
+            className={`${ItemCss} ${props.item.isEdit && "editting"}`}>
             <div className="position">
                 <FontAwesomeIcon size="xs" onClick={()=>props.moveUpTask(props.item.id)} icon={faChevronUp} />
                 <FontAwesomeIcon size="xs" onClick={()=>props.moveDownTask(props.item.id)} icon={faChevronDown} />

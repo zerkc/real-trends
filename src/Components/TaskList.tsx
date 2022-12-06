@@ -10,11 +10,11 @@ const TaskListCss = css`
     padding: 1.2rem;
 `;
 
-export default observer((props: { store: any, filter: "ALL" | "UNCOMPLETE" }) => {
+export default observer((props: { StoreTasks: any, filter: "ALL" | "UNCOMPLETE" }) => {
     return (
         <div className={TaskListCss}>
-            {props.store.filterTasks(props.filter).map((task: any) => (
-                <TaskItem key={task.id} item={task} moveDownTask={props.store.moveDownTask} moveUpTask={props.store.moveUpTask} deleteTask={props.store.deleteTask} />
+            {props.StoreTasks.filterTasks(props.filter).map((task: any) => (
+                <TaskItem key={task.id} item={task} moveDownTask={props.StoreTasks.moveDownTask} moveUpTask={props.StoreTasks.moveUpTask} deleteTask={props.StoreTasks.deleteTask} />
             ))}
         </div>
     )

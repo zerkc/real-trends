@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import { store } from "./Models/TasksModel";
+import React, { useState } from 'react';
+import { StoreTasks } from "./Models/TasksModel";
 import TaskList from './Components/TaskList';
 import { observer } from 'mobx-react-lite';
 import { css } from '@emotion/css';
@@ -31,7 +30,7 @@ const App = observer(() => {
     if(!taskText || !taskText.trim()){
       return;
     }
-    store.addTask(crypto.randomUUID(), taskText);
+    StoreTasks.addTask(crypto.randomUUID(), taskText);
     setTaskText("");
   }
 
@@ -51,7 +50,7 @@ const App = observer(() => {
         </Button>
       </div>
       
-      <TaskList store={store} filter={filterTasks} />
+      <TaskList StoreTasks={StoreTasks} filter={filterTasks} />
     </div>
   );
 })
